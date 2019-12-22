@@ -1,4 +1,3 @@
-import '@reshuffle/code-transform/macro';
 import React from 'react';
 
 // our props consists of a single (optional) parameter

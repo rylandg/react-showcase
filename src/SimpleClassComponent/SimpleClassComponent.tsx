@@ -1,4 +1,3 @@
-import '@reshuffle/code-transform/macro';
 import React, { Component } from 'react';
 
 interface SimpleCCProps {
