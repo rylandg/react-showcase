@@ -1,0 +1,13 @@
+// we are configuring the wrapper for the styled
+// component examples
+.styled-container {
+  width: 100%;
+  height: 100%;
+}
+
+.gradient-rectangle {
+  height: 50px;
+  width: 500px;
+  background-image: linear-gradient(red, yellow);
+  border: 1px solid black;
+}

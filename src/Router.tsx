@@ -3,16 +3,27 @@ import React from 'react';
 
 import { Route, Switch } from 'react-router-dom';
 
-const HelloWorld = () => {
-  return (
-    <span>Hello World</span>
-  );
-}
+import { HomePage } from './HomePage';
+import { SimpleFunctionComponent } from './SimpleFunctionComponent/SimpleFunctionComponent';
+import { SimpleClassComponent } from './SimpleClassComponent/SimpleClassComponent';
+import { StyledComponent } from './StyledComponent/StyledComponent';
 
 const Router: React.FC = () => {
   return (
     <Switch>
-      <Route component={HelloWorld} />
+      <Route
+        component={SimpleFunctionComponent}
+        path='/simple-function-component'
+      />
+      <Route
+        component={SimpleClassComponent}
+        path='/simple-class-component'
+      />
+      <Route
+        component={StyledComponent}
+        path='/styled-component'
+      />
+      <Route component={HomePage} />
     </Switch>
   );
 }
