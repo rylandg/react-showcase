@@ -22,6 +22,11 @@ export const HomePage: React.FC = () => {
           Styled component
         </Link>
       </li>
+      <li>
+        <Link to='/drag-and-drop'>
+          Drag and drop example
+        </Link>
+      </li>
     </ul>
   );
 }

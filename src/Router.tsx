@@ -7,6 +7,7 @@ import { HomePage } from './HomePage';
 import { SimpleFunctionComponent } from './SimpleFunctionComponent/SimpleFunctionComponent';
 import { SimpleClassComponent } from './SimpleClassComponent/SimpleClassComponent';
 import { StyledComponent } from './StyledComponent/StyledComponent';
+import { DragAndDropComponent } from './DragAndDropComponent/DragAndDropComponent';
 
 const Router: React.FC = () => {
   return (
@@ -22,6 +23,10 @@ const Router: React.FC = () => {
       <Route
         component={StyledComponent}
         path='/styled-component'
+      />
+      <Route
+        component={DragAndDropComponent}
+        path='/drag-and-drop'
       />
       <Route component={HomePage} />
     </Switch>
