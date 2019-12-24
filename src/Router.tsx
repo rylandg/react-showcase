@@ -8,6 +8,7 @@ import { SimpleFunctionComponent } from './SimpleFunctionComponent/SimpleFunctio
 import { SimpleClassComponent } from './SimpleClassComponent/SimpleClassComponent';
 import { StyledComponent } from './StyledComponent/StyledComponent';
 import { DragAndDropComponent } from './DragAndDropComponent/DragAndDropComponent';
+import { ClassComponentWithState } from './ClassComponentWithState/ClassComponentWithState';
 
 const Router: React.FC = () => {
   return (
@@ -19,6 +20,10 @@ const Router: React.FC = () => {
       <Route
         component={SimpleClassComponent}
         path='/simple-class-component'
+      />
+      <Route
+        component={ClassComponentWithState}
+        path='/class-component-with-state'
       />
       <Route
         component={StyledComponent}

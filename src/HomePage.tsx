@@ -18,6 +18,11 @@ export const HomePage: React.FC = () => {
         </Link>
       </li>
       <li>
+        <Link to='/class-component-with-state'>
+          Class component with state
+        </Link>
+      </li>
+      <li>
         <Link to='/styled-component'>
           Styled component
         </Link>
