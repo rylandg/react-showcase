@@ -9,8 +9,17 @@ import GoldOrnament from './gold-ornament.png';
 import GreenishOrnament from './greenish-ornament.png';
 import GreenBowOrnament from './green-ornament.png';
 import Tree from './tree.png';
+import Star from './star.png';
+import RedOrnament from './red-ornament.png';
+import LightsString from './lights-string.jpg';
+import ColoredLights from './colored-lights.png';
+import WhiteLights from './white-lights.png';
+import WhiteLightsSmall from './white-lights-small.png';
+import Greeting from 'text-greeting.png';
 
 import './DragAndDropComponent.scss';
+import { start } from 'repl';
+import { create } from 'istanbul-reports';
 
 interface DragWrapperProps {
   id: string;
@@ -65,7 +74,14 @@ enum OrnamentType {
   Blue = 'Blue',
   Greenish = 'Greenish',
   Gold = 'Gold',
+  Red = 'Red',
   GreenBow = 'GreenBow',
+  Star = 'Star',
+  WhiteLights = 'WhiteLights',
+  ColoredLights = 'ColoredLights',
+  LightsString= 'LightsString',
+  WhiteLightsSmall = 'WhiteLightsSmall',
+  // Greeting = 'Greeting',
 }
 
 interface SavedOrnament {
@@ -73,6 +89,8 @@ interface SavedOrnament {
   type: OrnamentType;
   top: number;
   left: number;
+  duplicator?: boolean;
+
 }
 
 interface OrnamentProps extends DragWrapperProps {
@@ -84,13 +102,36 @@ const OrnamentImages = {
   [OrnamentType.Greenish]: GreenishOrnament,
   [OrnamentType.GreenBow]: GreenBowOrnament,
   [OrnamentType.Gold]: GoldOrnament,
+  [OrnamentType.Star]: Star,
+  [OrnamentType.Red]: RedOrnament,
+  [OrnamentType.ColoredLights]: ColoredLights,
+  [OrnamentType.WhiteLights]: WhiteLights,
+  [OrnamentType.LightsString]: LightsString,
+  [OrnamentType.WhiteLightsSmall]: WhiteLightsSmall,
 };
+
+const getClassFromOrnamentType = (ornamentType: OrnamentType): string => {
+  const lightTypes = [OrnamentType.ColoredLights, OrnamentType.WhiteLights]
+  const starType = OrnamentType.Star;
+  const smallLightsType = OrnamentType.WhiteLightsSmall;
+  if (lightTypes.includes(ornamentType)) {
+    return 'lights';
+  }
+  if (ornamentType === starType) {
+    return 'star';
+  }
+  if (ornamentType === smallLightsType) {
+    return 'lights-small'
+  }
+  return 'ornament';
+}
 
 const Ornament: React.FC<OrnamentProps> = ({
   ornament,
   ...rest
 }) => {
-  const { id, top, left, type } = ornament;
+  const { id, top, left, type, } = ornament;
+  const className = getClassFromOrnamentType(type);
   return (
     <DragWrapper
       id={id}
@@ -99,12 +140,14 @@ const Ornament: React.FC<OrnamentProps> = ({
       {...rest}
     >
       <img
-        className='ornament'
+        className={className}
         src={OrnamentImages[type]}
       />
     </DragWrapper>
   );
 }
+
+
 
 const ornamentKey = 'temp';
 
@@ -114,36 +157,75 @@ const saveOrnaments = (ornaments: SavedOrnament[]) => {
 
 const createInitialOrnaments = (): SavedOrnament[] => {
   const ornaments: SavedOrnament[] = [];
-  const orn = [...Array(3)];
+  const orn = [...Array(1)];
 
-  orn.map((_, idx) => {
-    ornaments.push({
-      type: OrnamentType.Gold,
-      id: uuidv4(),
-      top: idx * 75,
-      left: 0,
-    });
+  ornaments.push({
+    type: OrnamentType.WhiteLights,
+    id: uuidv4(),
+    top: 310,
+    left: 15,
+    duplicator: true,
   });
 
-  orn.map((_, idx) => {
-    ornaments.push({
-      type: OrnamentType.Blue,
-      id: uuidv4(),
-      top: idx * 75,
-      left: 75,
-    });
+  ornaments.push({
+    type: OrnamentType.ColoredLights,
+    id: uuidv4(),
+    top: 385,
+    left: 15,
+    duplicator: true,
   });
 
-  orn.map((_, idx) => {
-    ornaments.push({
-      type: OrnamentType.Greenish,
-      id: uuidv4(),
-      top: idx * 75,
-      left: 150,
-    });
+  ornaments.push({
+    type: OrnamentType.WhiteLightsSmall,
+    id: uuidv4(),
+    top: 385,
+    left: 15,
+    duplicator: true,
   });
+
+  ornaments.push({
+    type: OrnamentType.Gold,
+    id: uuidv4(),
+    top: 10,
+    left: 15,
+    duplicator: true,
+  });
+
+  ornaments.push({
+    type: OrnamentType.Blue,
+    id: uuidv4(),
+    top: 85,
+    left: 15,
+    duplicator: true,
+  });
+
+  ornaments.push({
+    type: OrnamentType.Greenish,
+    id: uuidv4(),
+    top: 160,
+    left: 15,
+    duplicator: true,
+  });
+
+  ornaments.push({
+    type: OrnamentType.Red,
+    id: uuidv4(),
+    top: 235,
+    left: 15,
+    duplicator: true,
+  });
+
+  ornaments.push({
+    type: OrnamentType.Star,
+    id: uuidv4(),
+    top: 435,
+    left: 15,
+  });
+
   return ornaments;
+  
 }
+
 
 const getSavedOrnaments = (): SavedOrnament[] => {
   const maybeOrnaments = localStorage.getItem(ornamentKey);
@@ -155,18 +237,18 @@ const getSavedOrnaments = (): SavedOrnament[] => {
 
 // this is both our wrapper and a very simple example
 export const DragAndDropComponent: React.FC = () => {
-  const [ornaments, setOrnaments] = useState<SavedOrnament[]>([]);
-  useEffect(() => {
-    async function loadOrnaments() {
-      const remoteOrnaments = await getRemoteOrnaments();
-      if (remoteOrnaments === undefined || remoteOrnaments.length === 0) {
-        setOrnaments(createInitialOrnaments);
-      } else {
-        setOrnaments(remoteOrnaments);
-      }
-    }
-    loadOrnaments();
-  }, []);
+  const [ornaments, setOrnaments] = useState<SavedOrnament[]>(createInitialOrnaments());
+  // useEffect(() => {
+  //   async function loadOrnaments() {
+  //     const remoteOrnaments = await getRemoteOrnaments();
+  //     if (remoteOrnaments === undefined || remoteOrnaments.length === 0) {
+  //       setOrnaments(createInitialOrnaments);
+  //     } else {
+  //       setOrnaments(remoteOrnaments);
+  //     }
+  //   }
+  //   loadOrnaments();
+  // }, []);
   const [dragId, setDragId] = useState<string | undefined>(undefined);
 
   const onDrag = (event: React.DragEvent<HTMLDivElement>) => {
@@ -186,17 +268,40 @@ export const DragAndDropComponent: React.FC = () => {
       const xOff = parseInt(offset[0], 10);
       const yOff = parseInt(offset[1], 10);
       const copy = [...ornaments];
-      copy.forEach((ornament) => {
-        if (ornament.id === dragId) {
-          ornament.left = event.clientX + xOff;
-          ornament.top = event.clientY + yOff;
-        }
-      });
+      const targetElement = copy.filter(({ id }) => id === dragId)[0];
+      if (targetElement.duplicator) {
+        const copyOrnament = {
+          ...targetElement,
+          id: uuidv4(),
+          left: event.clientX + xOff,
+          top: event.clientY + yOff,
+          duplicator: false,
+        };
+        copy.push(copyOrnament);
+      } else {
+        targetElement.left = event.clientX + xOff;
+        targetElement.top = event.clientY + yOff;
+      }
+     
       setOrnaments(copy);
       // saveOrnaments(copy);
       await saveRemoteOrnaments(copy);
     }
     return false;
+  }
+
+  class MyForm extends React.Component {
+    render() {
+      return (
+        <form>
+          <h1>Hello</h1>
+          <p>Enter your name:</p>
+          <input
+            type="text"
+          />
+        </form>
+      );
+    }
   }
 
   return (
@@ -206,7 +311,8 @@ export const DragAndDropComponent: React.FC = () => {
       onDrop={onDrop}
       onDrag={onDrag}
     >
-      <img src={Tree} />
+      <img src={Tree} className="tree"  />
+      <div className='menu'> </div>
       {
         ornaments.map((ornament) => (
           <Ornament
@@ -217,6 +323,7 @@ export const DragAndDropComponent: React.FC = () => {
           />
         ))
       }
+      
     </div>
   );
 }
