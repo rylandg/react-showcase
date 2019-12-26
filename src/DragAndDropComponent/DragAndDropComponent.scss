@@ -3,6 +3,7 @@
   position: relative;
   width: 100%;
   height: 100%;
+  background-color: rgba(#191970, 1.0);
 }
 
 .drag-wrapper {
@@ -44,6 +45,22 @@
   padding-top: 30px;
 }
 
+.recycle {
+  height: 80px;
+  width: auto;
+
+  &-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  &-spacer {
+    height: 10%;
+  }
+}
+
 .menu {
   display: flex;
   position: absolute;
@@ -51,4 +68,22 @@
   height: 90vh;
   background-color: rgb(190, 189, 189);
   outline-color: black;
+}
+
+.ornament-selected {
+  --stroke-pos: 1px;
+  --stroke-neg: -1px;
+  --stroke-color: rgba(199, 255, 0, 0.6);
+  filter: drop-shadow(var(--stroke-pos) 0 0 var(--stroke-color))
+    drop-shadow(var(--stroke-neg) 0 var(--stroke-color))
+    drop-shadow(0 var(--stroke-pos) 0 var(--stroke-color))
+    drop-shadow(0 var(--stroke-neg) 0 var(--stroke-color))
+    drop-shadow(var(--stroke-pos) var(--stroke-pos) 0 var(--stroke-color))
+    drop-shadow(var(--stroke-pos) var(--stroke-neg) 0 var(--stroke-color))
+    drop-shadow(var(--stroke-neg) var(--stroke-pos) 0 var(--stroke-color))
+    drop-shadow(var(--stroke-neg) var(--stroke-neg) 0 var(--stroke-color));
+}
+
+.ornament-hover:hover {
+  @extend .ornament-selected;
 }
