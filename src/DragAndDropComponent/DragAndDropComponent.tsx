@@ -1,6 +1,8 @@
 import '@reshuffle/code-transform/macro';
-import React, { DragEvent, useState, useEffect } from 'react';
+import React, { MouseEvent, DragEvent, useState, useEffect } from 'react';
+import { RouteProps, Redirect } from 'react-router-dom';
 import uuidv4 from 'uuid';
+import qs from 'qs';
 
 import { saveRemoteOrnaments, getRemoteOrnaments } from '../../backend/backend';
 import {
@@ -100,19 +102,6 @@ const getSavedOrnaments = (): SavedOrnament[] => {
   return createInitialOrnaments();
 }
 
-class MyForm extends React.Component {
-  render() {
-    return (
-      <form>
-        <h1>Hello</h1>
-        <p>Enter your name:</p>
-        <input
-          type="text"
-        />
-      </form>
-    );
-  }
-}
 
 interface RecycleBinProps {
   onDrop?: (evt: DragEvent<HTMLDivElement>) => void;
@@ -131,22 +120,38 @@ const RecycleBin: React.FC<RecycleBinProps> = ({ onDrop }) => {
   );
 }
 
+interface DragAndDropDisplayProps {
+  pageId: string;
+}
 // this is both our wrapper and a very simple example
-export const DragAndDropComponent: React.FC = () => {
+export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }) => {
+  const [isValidId, setIsValidId] = useState<boolean | undefined>(undefined);
   const [ornaments, setOrnaments] = useState<SavedOrnament[]>(createInitialOrnaments());
-  // useEffect(() => {
-  //   async function loadOrnaments() {
-  //     const remoteOrnaments = await getRemoteOrnaments();
-  //     if (remoteOrnaments === undefined || remoteOrnaments.length === 0) {
-  //       setOrnaments(createInitialOrnaments);
-  //     } else {
-  //       setOrnaments(remoteOrnaments);
-  //     }
-  //   }
-  //   loadOrnaments();
-  // }, []);
   const [dragId, setDragId] = useState<string | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    async function loadOrnaments() {
+      const remoteOrnaments = await getRemoteOrnaments(pageId);
+      if (!remoteOrnaments || remoteOrnaments.length === 0) {
+        setIsValidId(false);
+      } else {
+        setIsValidId(true);
+        setOrnaments(remoteOrnaments);
+      }
+    }
+    loadOrnaments();
+  }, []);
+  if (isValidId === undefined) {
+    return null;
+  } else if (isValidId === false) {
+    return <Redirect to='/drag-and-drop'/>;
+  }
+
+  const setAndSave = async (orns: SavedOrnament[]) => {
+    setOrnaments(orns);
+    await saveRemoteOrnaments(pageId, orns);
+  }
 
   const removeOrnamentById = (removeId: string): boolean => {
     if (dragId === removeId) {
@@ -157,7 +162,7 @@ export const DragAndDropComponent: React.FC = () => {
     if (removedOrnament.length && !removedOrnament[0].duplicator) {
       const notRemovedOrnaments = ornaments.filter(({ id }) =>
         id !== removeId);
-      setOrnaments(notRemovedOrnaments);
+      setAndSave(notRemovedOrnaments);
       return true;
     }
     return false;
@@ -204,9 +209,8 @@ export const DragAndDropComponent: React.FC = () => {
         targetElement.top = event.clientY + yOff;
       }
 
-      setOrnaments(copy);
+      setAndSave(copy);
       // saveOrnaments(copy);
-      await saveRemoteOrnaments(copy);
     }
     return false;
   }
@@ -252,4 +256,38 @@ export const DragAndDropComponent: React.FC = () => {
       <RecycleBin onDrop={onRecycleDrop}/>
     </div>
   );
+}
+
+export const DragAndDropChooser: React.FC = () => {
+  const [createdId, setCreatedId] = useState<string | undefined>(undefined);
+  const createNew = async (event: MouseEvent) => {
+    event.preventDefault();
+    const newId = uuidv4();
+    await saveRemoteOrnaments(newId, createInitialOrnaments());
+    setCreatedId(newId);
+  }
+  if (createdId) {
+    return <Redirect to={`/drag-and-drop?id=${createdId}`}/>;
+  }
+  return (
+    <div>
+      <button onClick={createNew}>
+        Create new tree
+      </button>
+    </div>
+  );
+}
+
+export const DragAndDropComponent: React.FC<RouteProps> = ({ location }) => {
+  const queryParams = location && location.search;
+  if (!queryParams) {
+    return <DragAndDropChooser/>;
+  }
+
+  const qp = qs.parse(queryParams, { ignoreQueryPrefix: true });
+  if (!qp.id) {
+    return <DragAndDropChooser/>;
+  }
+
+  return <DragAndDropDisplay pageId={qp.id}/>;
 }
