@@ -1,10 +1,14 @@
 import '@reshuffle/code-transform/macro';
 import React, { MouseEvent, DragEvent, useState, useEffect } from 'react';
-import { RouteProps, Redirect } from 'react-router-dom';
+import { RouteProps, Redirect, Link } from 'react-router-dom';
 import uuidv4 from 'uuid';
 import qs from 'qs';
 
-import { saveRemoteOrnaments, getRemoteOrnaments } from '../../backend/backend';
+import {
+  saveRemoteOrnaments,
+  getRemoteOrnaments,
+  getAllTrees,
+} from '../../backend/backend';
 import {
   Ornament,
   SavedOrnament,
@@ -260,6 +264,14 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
 
 export const DragAndDropChooser: React.FC = () => {
   const [createdId, setCreatedId] = useState<string | undefined>(undefined);
+  const [existingIds, setExistingIds] = useState<string[]>([]);
+  useEffect(() => {
+    async function loadExistingTrees() {
+      const trees = await getAllTrees();
+      setExistingIds(trees);
+    }
+    loadExistingTrees();
+  }, []);
   const createNew = async (event: MouseEvent) => {
     event.preventDefault();
     const newId = uuidv4();
@@ -270,10 +282,34 @@ export const DragAndDropChooser: React.FC = () => {
     return <Redirect to={`/drag-and-drop?id=${createdId}`}/>;
   }
   return (
-    <div>
-      <button onClick={createNew}>
-        Create new tree
-      </button>
+    <div className='centered-wrapper'>
+      <div className='centered-list-spacer'/>
+      <div className='centered-list-container'>
+        <div className='centered-list-controls'>
+          <div className='centered-list-controls-button-wrapper'>
+            <button
+              onClick={createNew}
+              className='centered-list-controls-button'
+            >
+              Create new tree
+            </button>
+          </div>
+        </div>
+          {
+            existingIds.map((existingId) => (
+              <Link
+                to={`/drag-and-drop?id=${existingId}`}
+                className='centered-list-content-link'
+                key={existingId}
+              >
+                <div className='centered-list-content-item'>
+                    {existingId}
+                </div>
+              </Link>
+            ))
+          }
+      </div>
+      <div className='centered-list-spacer'/>
     </div>
   );
 }
