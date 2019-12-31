@@ -30,68 +30,68 @@ const createInitialOrnaments = (): SavedOrnament[] => {
   const ornaments: SavedOrnament[] = [];
   const orn = [...Array(1)];
 
-  ornaments.push({
-    type: OrnamentType.WhiteLights,
-    id: uuidv4(),
-    top: 310,
-    left: 15,
-    duplicator: true,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.WhiteLights,
+  //   id: uuidv4(),
+  //   top: 310,
+  //   left: 15,
+  //   duplicator: true,
+  // });
 
-  ornaments.push({
-    type: OrnamentType.ColoredLights,
-    id: uuidv4(),
-    top: 385,
-    left: 15,
-    duplicator: true,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.ColoredLights,
+  //   id: uuidv4(),
+  //   top: '70%',
+  //   left: 15,
+  //   duplicator: true,
+  // });
 
-  ornaments.push({
-    type: OrnamentType.WhiteLightsSmall,
-    id: uuidv4(),
-    top: 385,
-    left: 15,
-    duplicator: true,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.WhiteLightsSmall,
+  //   id: uuidv4(),
+  //   top: '60%',
+  //   left: '5%',
+  //   duplicator: true,
+  // });
 
   ornaments.push({
     type: OrnamentType.Gold,
     id: uuidv4(),
-    top: 10,
-    left: 15,
+    top: '3vh',
+    left: '5%',
     duplicator: true,
   });
 
-  ornaments.push({
-    type: OrnamentType.Blue,
-    id: uuidv4(),
-    top: 85,
-    left: 15,
-    duplicator: true,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.Blue,
+  //   id: uuidv4(),
+  //   top: '14vh',
+  //   left: '5%',
+  //   duplicator: true,
+  // });
 
-  ornaments.push({
-    type: OrnamentType.Greenish,
-    id: uuidv4(),
-    top: 160,
-    left: 15,
-    duplicator: true,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.Greenish,
+  //   id: uuidv4(),
+  //   top: '26vh',
+  //   left: '5%',
+  //   duplicator: true,
+  // });
 
-  ornaments.push({
-    type: OrnamentType.Red,
-    id: uuidv4(),
-    top: 235,
-    left: 15,
-    duplicator: true,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.Red,
+  //   id: uuidv4(),
+  //   top: '38vh',
+  //   left: '5%',
+  //   duplicator: true,
+  // });
 
-  ornaments.push({
-    type: OrnamentType.Star,
-    id: uuidv4(),
-    top: 435,
-    left: 15,
-  });
+  // ornaments.push({
+  //   type: OrnamentType.Star,
+  //   id: uuidv4(),
+  //   top: '70%',
+  //   left: 15,
+  // });
 
   return ornaments;
 
@@ -129,7 +129,7 @@ interface DragAndDropDisplayProps {
 }
 // this is both our wrapper and a very simple example
 export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }) => {
-  const [isValidId, setIsValidId] = useState<boolean | undefined>(undefined);
+  const [isValidId, setIsValidId] = useState<boolean | undefined>(true);
   const [ornaments, setOrnaments] = useState<SavedOrnament[]>(createInitialOrnaments());
   const [dragId, setDragId] = useState<string | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
@@ -181,6 +181,10 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
     }
   });
 
+  // window.addEventListener("drop", (e) => {
+  //   e.preventDefault();
+  // }, false);
+
   const onDrag = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
   }
@@ -194,23 +198,42 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
     event.preventDefault();
     const offset = event.dataTransfer.getData('text/plain').split(',');
     const dragEle = document.getElementById(dragId || uuidv4());
-    if (dragEle !== null) {
+    const dropZone = document.getElementById('droppable-zone');
+    if (dragEle !== null && dropZone !== null) {
       const xOff = parseInt(offset[0], 10);
       const yOff = parseInt(offset[1], 10);
+      console.log(`x offset ${xOff}`);
+      console.log(`y offset ${yOff}`);
+      console.log(`client x ${event.clientX}`);
+      console.log(`client y ${event.clientY}`);
+      console.log(`final x ${event.clientX + xOff}`);
+      console.log(`final y ${event.clientY + yOff}`);
+      const fullX = event.clientX + xOff;
+      const fullY = event.clientY + yOff;
+      const wHeight = window.innerHeight;
+      const yVh = (fullY / dropZone.offsetHeight) * 100;
+      console.log(`percent y ${yVh}`);
+      console.log(dropZone.getBoundingClientRect());
+      console.log(`drop zone left offset ${dropZone.offsetLeft}`);
+      const xVw = (fullX / dropZone.offsetWidth);
+      console.log(`percent x ${xVw}`);
+      const actualX = (event.clientX - dropZone.offsetLeft + xOff);
+      const percentX = (actualX / dropZone.offsetWidth) * 100;
       const copy = [...ornaments];
       const targetElement = copy.filter(({ id }) => id === dragId)[0];
       if (targetElement.duplicator) {
         const copyOrnament = {
           ...targetElement,
           id: uuidv4(),
-          left: event.clientX + xOff,
-          top: event.clientY + yOff,
+          top: `${yVh}%`,
+          left: `${percentX}%`,
           duplicator: false,
         };
         copy.push(copyOrnament);
       } else {
-        targetElement.left = event.clientX + xOff;
-        targetElement.top = event.clientY + yOff;
+        // targetElement.left = event.clientX + xOff;
+        targetElement.left = `${percentX}%`;
+        targetElement.top = `${yVh}%`;
       }
 
       setAndSave(copy);
@@ -237,30 +260,56 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
 
 
   return (
-    <div
-      className='dnd-container'
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      onDrag={onDrag}
-    >
-      <img src={Tree} className='tree'  />
+    <div className='dnd-container'>
       <div className='menu'> </div>
-      {
-        ornaments.map((ornament) => (
-          <Ornament
-            key={ornament.id}
-            id={ornament.id}
-            ornament={ornament}
-            setDragId={setDragId}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
+      <div
+        className='droppable-wrapper'
+        id='droppable-zone'
+      >
+        <div
+          className='droppable-zone'
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          onDrag={onDrag}
+        >
+          <div className='drag-zone-wrapper'>
+            {
+              ornaments.map((ornament) => (
+                <Ornament
+                  key={ornament.id}
+                  id={ornament.id}
+                  ornament={ornament}
+                  setDragId={setDragId}
+                  selectedId={selectedId}
+                  setSelectedId={setSelectedId}
+                />
+              ))
+            }
+          </div>
+          <img
+            src={Tree}
+            className='tree'
+            id='drop-tree'
           />
-        ))
-      }
-      <RecycleBin onDrop={onRecycleDrop}/>
+        </div>
+        {/* <RecycleBin onDrop={onRecycleDrop}/> */}
+      </div>
     </div>
   );
 }
+       // {
+       //    ornaments.map((ornament) => (
+       //      <Ornament
+       //        key={ornament.id}
+       //        id={ornament.id}
+       //        ornament={ornament}
+       //        setDragId={setDragId}
+       //        selectedId={selectedId}
+       //        setSelectedId={setSelectedId}
+       //      />
+       //    ))
+       //  }
+
 
 export const DragAndDropChooser: React.FC = () => {
   const [createdId, setCreatedId] = useState<string | undefined>(undefined);

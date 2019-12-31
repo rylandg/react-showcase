@@ -31,8 +31,8 @@ export enum OrnamentType {
 export interface SavedOrnament {
   id: string;
   type: OrnamentType;
-  top: number;
-  left: number;
+  top: number | string;
+  left: number | string;
   duplicator?: boolean;
 }
 

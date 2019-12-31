@@ -9,8 +9,6 @@ export async function getRemoteOrnaments(id) {
 
 /* @expose */
 export async function saveRemoteOrnaments(id, ornaments) {
-  console.log(id);
-  console.log(ornaments);
   return await update(`${treePrefix}${id}`, (oldOrnaments) => ornaments);
 }
 
