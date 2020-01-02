@@ -34,10 +34,12 @@ export interface SavedOrnament {
   top: number;
   left: number;
   duplicator?: boolean;
+  numUses?: number;
 }
 
 export interface OrnamentProps extends DragWrapperProps {
   ornament: SavedOrnament;
+  isAbsPos?: boolean;
   selectedId?: string;
   setSelectedId: (id?: string) => void;
 }
