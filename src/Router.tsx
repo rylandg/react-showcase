@@ -10,6 +10,7 @@ import { StyledComponent } from './StyledComponent/StyledComponent';
 import { DragAndDropComponent } from './DragAndDropComponent/DragAndDropComponent';
 import { ClassComponentWithState } from './ClassComponentWithState/ClassComponentWithState';
 import { FunctionComponentWithState } from './FunctionComponentWithState/FunctionComponentWithState';
+import { JeaniesPage } from './JeaniesPage/JeaniesPage'
 
 
 const Router: React.FC = () => {
@@ -39,7 +40,12 @@ const Router: React.FC = () => {
         component={DragAndDropComponent}
         path='/drag-and-drop'
       />
+      <Route 
+        component={JeaniesPage}
+        path='/jeanies-page'
+      />
       <Route component={HomePage} />
+    
     </Switch>
   );
 }

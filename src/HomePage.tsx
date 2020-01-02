@@ -37,6 +37,11 @@ export const HomePage: React.FC = () => {
           Drag and drop example
         </Link>
       </li>
+      <li>
+        <Link to='/jeanies-page'>
+          Jeanie's Page
+        </Link>
+      </li>
     </ul>
   );
 }
