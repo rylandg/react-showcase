@@ -1,8 +1,16 @@
 import '@reshuffle/code-transform/macro';
-import React, { MouseEvent, DragEvent, useState, useEffect } from 'react';
+import React, {
+  MouseEvent,
+  DragEvent,
+  ChangeEvent,
+  useState, 
+  useEffect,
+} from 'react';
 import { RouteProps, Redirect } from 'react-router-dom';
 import uuidv4 from 'uuid';
 import qs from 'qs';
+import { Link } from 'react-router-dom';
+import homeButtonImg from './home-button-img.png';
 
 import {
   saveRemoteOrnaments,
@@ -21,6 +29,8 @@ import { Sidebar } from './Sidebar';
 
 import Tree from './tree.png';
 import Recycle from './recycle.png';
+
+import { DragWrapper } from './DragWrapper';
 
 import './DragAndDropComponent.scss';
 
@@ -99,6 +109,15 @@ const createInitialOrnaments = (): SavedOrnament[] => {
     numUses: 1,
   });
 
+  ornaments.push({
+    type: OrnamentType.Greeting,
+    id: uuidv4(),
+    top: 575,
+    left: 15,
+    duplicator: true,
+    numUses: 1,
+  });
+
   return ornaments;
 
 }
@@ -129,7 +148,7 @@ const RecycleBin: React.FC<RecycleBinProps> = ({
         onDrop={onDrop}
         onDragOver={onDragOver}
       />
-      <div className='recycle-spacer'/>
+      <div className='recycle-spacer' />
     </div>
   );
 }
@@ -137,6 +156,38 @@ const RecycleBin: React.FC<RecycleBinProps> = ({
 interface DragAndDropDisplayProps {
   pageId: string;
 }
+
+export const SidebarHomeButton: React.FC = () => {
+  return (
+    <Link to='/drag-and-drop'>
+      <img src={homeButtonImg} className='home-button' />
+    </Link>
+  )
+}
+
+// export const glowButton: React.FC<OrnamentProps> = ({
+//   ornament,
+//   selectedId,
+//   setSelectedId,
+//   ...rest
+// }) => {
+//   const { id, top, left, type, } = ornament;
+//   const isSelected = selectedId === id;
+//   const glowButtonPushed = 
+//   const className = getClassFromOrnamentType(type);
+//   const handleClick = (evt: MouseEvent) => {
+//     evt.preventDefault();
+//     setSelectedId(isSelected ? undefined : id);
+//   }
+//   let classes = `${className} ornament-hover`;
+
+//   if (isSelected) {
+//     classes = `${classes} ornament-selected`;
+//   }
+// }
+
+
+
 // this is both our wrapper and a very simple example
 export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }) => {
   const [isValidId, setIsValidId] = useState<boolean | undefined>(undefined);
@@ -144,6 +195,7 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
   const [dragId, setDragId] = useState<string | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [initOrns, setInitOrns] = useState<SavedOrnament[]>(createInitialOrnaments());
+  const [isLit, setIsLit] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     async function loadOrnaments() {
@@ -160,7 +212,7 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
   if (isValidId === undefined) {
     return null;
   } else if (isValidId === false) {
-    return <Redirect to='/drag-and-drop'/>;
+    return <Redirect to='/drag-and-drop' />;
   }
 
   const setAndSave = async (orns: SavedOrnament[]) => {
@@ -265,14 +317,53 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
     removeOrnamentById(dragId);
   }
 
+  interface GlowButtonProps {
+    handleGlow: (evt: MouseEvent) => void;
+  }
+ 
+
+  const GlowButton: React.FC<GlowButtonProps> = ({handleGlow}) => {
+    return (
+      <button className='glow-button' onClick={handleGlow}> It's Lit </button>
+    )
+  }
+  
+  const handleGlow = (evt: MouseEvent) => {
+    evt.preventDefault();
+    setIsLit(!isLit);
+
+  }
+
+
+
+  ///button first
+  // once button is working, go into drag and drop display
+  // create a function (NOT FC) "event handler function"
+  // handles a mouse event 
+  // pass THIS function to glowbutton component
+  // on or off 'boolean' const isLit, setIsLit
+  // pass isLit to each ornament 
+  // add property to ornament called isLit? 
+  // if 
+
 
   return (
     <div
       className='dnd-container'
     >
+
       <Sidebar width={350}>
         <div className='dnd-container-sidebar'>
+          <div className='home-button-image-wrap'>
+            <SidebarHomeButton />
+            <div className='home-button-image-tooltip-bg' />
+            <div className='home-button-image-tooltip'>
+              Home
+        </div>
+          </div>
+
           <div className='dnd-container-sidebar-content'>
+
             {
               initOrns.map((ornament) => (
                 <Ornament
@@ -286,7 +377,9 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
               ))
             }
           </div>
-          <RecycleBin onDrop={onRecycleDrop} onDragOver={onDragOver}/>
+          <GlowButton handleGlow={handleGlow}
+            />
+          <RecycleBin onDrop={onRecycleDrop} onDragOver={onDragOver} />
         </div>
       </Sidebar>
       <div
@@ -295,7 +388,7 @@ export const DragAndDropDisplay: React.FC<DragAndDropDisplayProps> = ({ pageId }
         onDrop={onDrop}
         onDrag={onDrag}
       >
-        <img src={Tree} className='tree'  />
+        <img src={Tree} className='tree' />
         {
           ornaments.map((ornament) => (
             <Ornament
@@ -341,11 +434,11 @@ export const DragAndDropChooser: React.FC = () => {
   }
 
   if (createdId) {
-    return <Redirect to={`/drag-and-drop?id=${createdId}`}/>;
+    return <Redirect to={`/drag-and-drop?id=${createdId}`} />;
   }
   return (
     <div className='centered-wrapper'>
-      <div className='centered-list-spacer'/>
+      <div className='centered-list-spacer' />
       <div className='centered-list-container'>
         <div className='centered-list-controls'>
           <div className='centered-list-controls-button-wrapper'>
@@ -357,16 +450,16 @@ export const DragAndDropChooser: React.FC = () => {
             </button>
           </div>
         </div>
-          {
-            existingIds.map((existingId) => (
-              <TreeRowDisplay
-                id={existingId}
-                deleteTree={deleteTree}
-              />
-            ))
-          }
+        {
+          existingIds.map((existingId) => (
+            <TreeRowDisplay
+              id={existingId}
+              deleteTree={deleteTree}
+            />
+          ))
+        }
       </div>
-      <div className='centered-list-spacer'/>
+      <div className='centered-list-spacer' />
     </div>
   );
 }
@@ -374,13 +467,13 @@ export const DragAndDropChooser: React.FC = () => {
 export const DragAndDropComponent: React.FC<RouteProps> = ({ location }) => {
   const queryParams = location && location.search;
   if (!queryParams) {
-    return <DragAndDropChooser/>;
+    return <DragAndDropChooser />;
   }
 
   const qp = qs.parse(queryParams, { ignoreQueryPrefix: true });
   if (!qp.id) {
-    return <DragAndDropChooser/>;
+    return <DragAndDropChooser />;
   }
 
-  return <DragAndDropDisplay pageId={qp.id}/>;
+  return <DragAndDropDisplay pageId={qp.id} />;
 }

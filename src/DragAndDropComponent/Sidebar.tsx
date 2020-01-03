@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 
 import './Sidebar.scss';
 
+
 export interface SidebarProps {
   startsOpen?: boolean;
   width: number;
 }
+
+
 
 export const Sidebar: React.FC<SidebarProps> = ({
   width,
