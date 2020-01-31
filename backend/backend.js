@@ -1,11 +1,22 @@
-import { update, get } from '@reshuffle/db';
+import { update, get, find, Q } from '@reshuffle/db';
+
+const treePrefix = 'tree_';
 
 /* @expose */
-export async function getRemoteOrnaments() {
-  return await get('temp');
+export async function getRemoteOrnaments(id) {
+  return await get(`${treePrefix}${id}`);
 }
 
 /* @expose */
-export async function saveRemoteOrnaments(ornaments) {
-  return await update('temp', (oldOrnaments) => ornaments);
+export async function saveRemoteOrnaments(id, ornaments) {
+  console.log(id);
+  console.log(ornaments);
+  return await update(`${treePrefix}${id}`, (oldOrnaments) => ornaments);
+}
+
+/* @expose */
+export async function getAllTrees() {
+  const allTrees = await find(Q.filter(Q.key.startsWith(treePrefix)));
+  const treeKeys = allTrees.map(({ key }) => key);
+  return treeKeys.map((key) => key.slice(treePrefix.length, key.length));
 }
